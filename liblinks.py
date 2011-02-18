@@ -63,6 +63,8 @@ def get_paths():
     dst_paths = []
     for item in dir_list:
         if os.path.isdir(item):
+            if item == '.hg':
+                continue
             src = os.path.join(curdir,item)
             dst = os.path.join(LIBDIR,item)
             src_paths.append(src)
