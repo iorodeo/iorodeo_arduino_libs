@@ -33,8 +33,38 @@
 // ----------------------------------------------------------------------------
 MCP4261::MCP4261(int csPin) {
     cs = csPin;
+    csInvertFlag = false;
     pinMode(cs,OUTPUT);
     digitalWrite(cs,HIGH);
+}
+
+
+// ----------------------------------------------------------------------------
+// MCP4261::csEnable
+//
+// Enable spi communications  
+// ----------------------------------------------------------------------------
+void MCP4261::csEnable() {
+    if (csInvertFlag == false) {
+        digitalWrite(cs,LOW);
+    }
+    else {
+        digitalWrite(cs,HIGH);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// MCP4261::csDisable
+//
+// Disable spi communications 
+// ----------------------------------------------------------------------------
+void MCP4261::csDisable() {
+    if (csInvertFlag == false) {
+        digitalWrite(cs,HIGH);
+    }
+    else {
+        digitalWrite(cs,LOW);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -51,7 +81,7 @@ int MCP4261::send16BitCmd(uint8_t addr, uint8_t cmd, int data) {
     int retData;
 
     // Enable SPI communication
-    digitalWrite(cs,LOW);
+    csEnable();
 
     // Restrict data to 9 bits
     data9Bits = (data & 0b0000000111111111);
@@ -65,7 +95,7 @@ int MCP4261::send16BitCmd(uint8_t addr, uint8_t cmd, int data) {
     inByte1 = SPI.transfer(outByte1);
 
     // Disable SPI communication
-    digitalWrite(cs,HIGH);
+    csDisable();
 
     // Packup return data
     inByte0 = (inByte0 & 0b00000001);
@@ -82,7 +112,7 @@ void MCP4261::send8BitCmd(uint8_t addr, uint8_t cmd) {
     uint8_t byte;
 
     // Enable SPI communication
-    digitalWrite(cs,LOW);
+    csEnable();
 
     // Create and send command byte
     byte = (addr & 0b00001111) << 4;
@@ -90,7 +120,7 @@ void MCP4261::send8BitCmd(uint8_t addr, uint8_t cmd) {
     SPI.transfer(byte);
 
     // Disable SPI communication
-    digitalWrite(cs,HIGH);
+    csDisable();
 } 
 
 // ----------------------------------------------------------------------------
@@ -272,7 +302,6 @@ void MCP4261::initialize() {
     digitalWrite(cs,HIGH);
 }
 
-
 // ----------------------------------------------------------------------------
 // MCP4261::getAddrEEPROM
 //
@@ -280,4 +309,22 @@ void MCP4261::initialize() {
 // ----------------------------------------------------------------------------
 uint8_t MCP4261::getAddrEEPROM(int n) {
     return ((uint8_t) n) + ADDR_EEPROM_START;
+}
+
+// ----------------------------------------------------------------------------
+// MCP4261::getAddrEEPROM
+//
+// use inverted chip select - high to enable
+// ----------------------------------------------------------------------------
+void MCP4261::setCSInvert() {
+    csInvertFlag = true;
+}
+
+// ----------------------------------------------------------------------------
+// MCP4261::getAddrEEPROM
+//
+// use normal chip select - low to enable
+// ----------------------------------------------------------------------------
+void MCP4261::setCSNormal() {
+    csInvertFlag = false;
 }

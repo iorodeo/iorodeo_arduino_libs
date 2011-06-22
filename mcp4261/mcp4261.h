@@ -20,6 +20,9 @@ private:
     uint8_t getAddrEEPROM(int n);
     uint8_t getWiperAddr(int wiper);
     uint8_t getWiperAddr_NonVolatile(int value);
+    bool csInvertFlag;
+    void csEnable();
+    void csDisable(); 
 public:
     MCP4261(int csPin);
     void initialize();
@@ -37,6 +40,8 @@ public:
     void setWiper1_NonVolatile(int value);
     void writeEEPROM(int n, int value);
     void readEEPROM(int n, int value);
+    void setCSInvert();
+    void setCSNormal();
 };
 
 
