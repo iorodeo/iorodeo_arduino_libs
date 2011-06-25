@@ -19,7 +19,7 @@ bool LookupTable::setTable(int _table[][2], unsigned int _size) {
 
 
 int LookupTable::getValue(int x) {
-    int rtnVal;
+    int rtnVal=0;
 
     // handle x values outside of range - return nearest end point value.
     if (x <= table[0][0]) {
@@ -31,8 +31,9 @@ int LookupTable::getValue(int x) {
     else {
         // x value is inside table - interpolate
         for (int i=1; i<size; i++) {
-            if (x < table[i][0]) {
+            if ((x >= table[i-1][0]) && (x < table[i][0])) {
                 rtnVal = map(x,table[i-1][0], table[i][0], table[i-1][1], table[i][1]);
+                break;
             }
         }
     }
