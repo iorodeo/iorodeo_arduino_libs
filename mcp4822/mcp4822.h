@@ -20,6 +20,7 @@ private:
     int gain[MCP4822_NUMCHAN];
     int getCmdWrd(int dac, int value);
 public:
+    MCP4822();
     MCP4822(int csPin, int ldacPin);
     void setValue(int dac, int value);
     void setValue_A(int value);
