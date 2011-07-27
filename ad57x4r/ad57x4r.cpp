@@ -10,6 +10,8 @@
 #include "WProgram.h"
 #include "SPI.h"
 #include "ad57x4r.h"
+#include <Streaming.h>
+
 
 // Read/Write Bit
 #define READ                 1
@@ -50,11 +52,7 @@ AD57X4R::AD57X4R(int csPin) {
   csInvertFlag = false;
   pinMode(cs,OUTPUT);
   digitalWrite(cs,HIGH);
-  // set defaults
-  input_shift_register.header = 0;
-  input_shift_register.data.unipolar = 0;
-  unipolar = true;
-  setOutputRange(UNIPOLAR_5V);
+  output.header = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -67,11 +65,11 @@ void AD57X4R::setHeader(byte value, byte bit_shift, byte bit_count) {
   for (byte bit=0; bit<bit_count; bit++) {
     bitSet(bit_mask,(bit+bit_shift));
   }
-  byte header = input_shift_register.header;
+  byte header = output.header;
   header &= ~bit_mask;
   value = value << bit_shift;
   header |= value;
-  input_shift_register.header = header;
+  output.header = header;
 }
 
 // ----------------------------------------------------------------------------
@@ -97,8 +95,29 @@ void AD57X4R::setRegisterSelect(byte value) {
 //
 // Set header DAC address bits
 // ----------------------------------------------------------------------------
-void AD57X4R::setDACAddress(byte value) {
+void AD57X4R::setDACAddress(channels channel) {
+  byte value;
+  if (channel == A) {
+    value = DAC_ADDRESS_A;
+  } else if (channel == B) {
+    value = DAC_ADDRESS_B;
+  } else if (channel == C) {
+    value = DAC_ADDRESS_C;
+  } else if (channel == D) {
+    value = DAC_ADDRESS_D;
+  } else if (channel == ALL) {
+    value = DAC_ADDRESS_ALL;
+  }
   setHeader(value,DAC_ADDRESS_BIT_SHIFT,DAC_ADDRESS_BIT_COUNT);
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::setNOP
+//
+// Set header to NOP condition for reading
+// ----------------------------------------------------------------------------
+void AD57X4R::setNOP() {
+  output.header = 0x18;
 }
 
 // ----------------------------------------------------------------------------
@@ -130,76 +149,132 @@ void AD57X4R::csDisable() {
 }
 
 // ----------------------------------------------------------------------------
-// AD57X4R::send16BitCmd
+// AD57X4R::sendOutput
 //
-// Sends a 16 bit command with the given addr and data
+// Send output shift register to DAC
 // ----------------------------------------------------------------------------
-int AD57X4R::send16BitCmd(uint8_t addr, uint8_t cmd, int data) {
-  uint8_t outByte0;
-  uint8_t outByte1;
-  uint8_t inByte0;
-  uint8_t inByte1;
-  int data9Bits;
-  int retData;
+void AD57X4R::sendOutput() {
+  byte outByteHeader;
+  byte outByteDataHigh;
+  byte outByteDataLow;
+  byte returnByte;
 
   // Enable SPI communication
   csEnable();
-
-  // Restrict data to 9 bits
-  data9Bits = (data & 0b0000000111111111);
 
   // Create and send command bytes
-  outByte0 =  (addr & 0b00001111) << 4;
-  outByte0 |= (cmd  & 0b00000011) << 2;
-  outByte0 |= (uint8_t) (data9Bits >> 8);
-  outByte1 = (uint8_t)( data9Bits & 0b11111111);
-  inByte0 = SPI.transfer(outByte0);
-  inByte1 = SPI.transfer(outByte1);
+  outByteHeader = output.header;
+  if (unipolar) {
+    unsigned int data;
+    data = output.data.unipolar;
+    output.data.unipolar = 0;
+    outByteDataHigh = highByte(data);
+    outByteDataLow = lowByte(data);
+  } else {
+    int data;
+    data = output.data.bipolar;
+    output.data.bipolar = 0;
+    outByteDataHigh = highByte(data);
+    outByteDataLow = lowByte(data);
+  }
+  returnByte = SPI.transfer(outByteHeader);
+  returnByte = SPI.transfer(outByteDataHigh);
+  returnByte = SPI.transfer(outByteDataLow);
+  Serial << "outByteHeader = " << _BIN(outByteHeader) << endl;
+  Serial << "outByteDataHigh = " << _BIN(outByteDataHigh) << endl;
+  Serial << "outByteDataLow = " << _BIN(outByteDataLow) << endl;
 
   // Disable SPI communication
   csDisable();
-
-  // Packup return data
-  inByte0 = (inByte0 & 0b00000001);
-  retData =  (((int) inByte0)<< 8) | (inByte1);
-  return retData;
 }
 
 // ----------------------------------------------------------------------------
-// AD57X4R::send8BitCmd
+// AD57X4R::readInput
 //
-// Sends a 8 bit command with the given address and data
+// Sends NOP to the DAC to receive and return data
 // ----------------------------------------------------------------------------
-void AD57X4R::send8BitCmd(uint8_t addr, uint8_t cmd) {
-  uint8_t byte;
+int AD57X4R::readInput() {
+  byte outByteHeader;
+  byte outByteDataHigh;
+  byte outByteDataLow;
+  byte inByteHeader;
+  byte inByteDataHigh;
+  byte inByteDataLow;
+  int returnData;
+
+  // Send NOP command in header
+  setNOP();
 
   // Enable SPI communication
   csEnable();
 
-  // Create and send command byte
-  byte = (addr & 0b00001111) << 4;
-  byte |= (cmd & 0b00000011) << 2;
-  SPI.transfer(byte);
+  // Create and send command bytes
+  outByteHeader = output.header;
+  outByteDataHigh = 0;
+  outByteDataLow = 0;
+  inByteHeader = SPI.transfer(outByteHeader);
+  inByteDataHigh = SPI.transfer(outByteDataHigh);
+  inByteDataLow = SPI.transfer(outByteDataLow);
+  Serial << "inByteHeader = " << _BIN(inByteHeader) << endl;
+  Serial << "inByteDataHigh = " << _BIN(inByteDataHigh) << endl;
+  Serial << "inByteDataLow = " << _BIN(inByteDataLow) << endl;
 
   // Disable SPI communication
   csDisable();
+
+  // Fill return data
+  returnData = ((int)inByteDataHigh << 8) | (int)inByteDataLow;
+  return returnData;
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::setData
+//
+// Sets output shift register data to value
+// ----------------------------------------------------------------------------
+void AD57X4R::setData(unsigned int value) {
+  if (res == AD5754R) {
+    output.data.unipolar = value;
+  } else if (res == AD5734R) {
+    output.data.unipolar = value << 2;
+  } else if (res == AD5724R) {
+    output.data.unipolar = value << 4;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::setData
+//
+// Sets output shift register data to value
+// ----------------------------------------------------------------------------
+void AD57X4R::setData(int value) {
 }
 
 // ---------------------------------------------------------------------------
-// AD57X4R::initialize
+// AD57X4R::setPowerControlRegister
 //
-// Initializes the TCON register which connects terminals A, B and wipers for
-// both potentiometers.
+// Set data in the power control register
 // ---------------------------------------------------------------------------
-void AD57X4R::initialize() {
-  uint8_t byte0;
-  uint8_t byte1;
-  // Enable SPI communication
-  digitalWrite(cs,LOW);
-  // Send command
-  send16BitCmd(ADDR_TCON_REGISTER, CMD_WRITE_DATA, 0b0000000111111111);
-  // Disable SPI communication
-  digitalWrite(cs,HIGH);
+void AD57X4R::setPowerControlRegister(channels channel) {
+  setReadWrite(WRITE);
+  setRegisterSelect(REGISTER_SELECT_POWER_CONTROL);
+  setDACAddress(A);
+  bool unipolarPrevious = unipolar;
+  unipolar = true;
+  output.data.unipolar = 0b10000;
+  if (channel == A) {
+    output.data.unipolar |= 0b0001;
+  } else if (channel == B) {
+    output.data.unipolar |= 0b0010;
+  } else if (channel == C) {
+    output.data.unipolar |= 0b0100;
+  } else if (channel == D) {
+    output.data.unipolar |= 0b1000;
+  } else if (channel == ALL) {
+    output.data.unipolar |= 0b1111;
+  }
+  sendOutput();
+  unipolar = unipolarPrevious;
 }
 
 // ---------------------------------------------------------------------------
@@ -207,10 +282,91 @@ void AD57X4R::initialize() {
 //
 // Sets the output range
 // ---------------------------------------------------------------------------
-void AD57X4R::setOutputRange(output_ranges output_range) {
+void AD57X4R::setOutputRange(output_ranges output_range, channels channel) {
   setReadWrite(WRITE);
   setRegisterSelect(REGISTER_SELECT_OUTPUT_RANGE_SELECT);
-  setDACAddress(DAC_ADDRESS_ALL);
+  setDACAddress(channel);
+  if (output_range == UNIPOLAR_5V) {
+    unipolar = true;
+    output.data.unipolar = 0b000;
+  } else if (output_range == UNIPOLAR_10V) {
+    unipolar = true;
+    output.data.unipolar = 0b001;
+  } else if (output_range == BIPOLAR_5V) {
+    unipolar = false;
+    output.data.bipolar = 0b011;
+  } else if (output_range == BIPOLAR_10V) {
+    unipolar = false;
+    output.data.bipolar = 0b101;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AD57X4R::readPowerControlRegister
+//
+// Reads and returns the data in the power control register
+// ---------------------------------------------------------------------------
+int AD57X4R::readPowerControlRegister() {
+  int returnData;
+  setReadWrite(READ);
+  setRegisterSelect(REGISTER_SELECT_POWER_CONTROL);
+  setDACAddress(A);
+  sendOutput();
+  returnData = readInput();
+  return returnData;
+}
+
+// ---------------------------------------------------------------------------
+// AD57X4R::update
+//
+// Sets the DAC channel to value
+// ---------------------------------------------------------------------------
+void AD57X4R::update(unsigned int value, channels channel) {
+  if (unipolar) {
+    setReadWrite(WRITE);
+    setRegisterSelect(REGISTER_SELECT_DAC);
+    setDACAddress(channel);
+    setData(value);
+    sendOutput();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AD57X4R::update
+//
+// Sets the DAC channel to value
+// ---------------------------------------------------------------------------
+void AD57X4R::update(int value, channels channel) {
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::init
+//
+// Initialize resolution, output range, and power control
+// ----------------------------------------------------------------------------
+void AD57X4R::init() {
+  // Set default values
+  init(AD5724R, UNIPOLAR_5V, ALL);
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::init
+//
+// Initialize resolution, output range, and power control
+// ----------------------------------------------------------------------------
+void AD57X4R::init(resolutions resolution, output_ranges output_range) {
+  init(resolution, output_range, ALL);
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::init
+//
+// Initialize resolution, output range, and power control
+// ----------------------------------------------------------------------------
+void AD57X4R::init(resolutions resolution, output_ranges output_range, channels channel) {
+  res = resolution;
+  setOutputRange(output_range, channel);
+  setPowerControlRegister(channel);
 }
 
 // ----------------------------------------------------------------------------
