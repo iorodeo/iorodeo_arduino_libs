@@ -12,31 +12,31 @@
 #define MAX1270_NUMCHAN 8
 
 class MAX1270 {
-private:
-    int cs;                            // Chip select DIO
-    int sstrb;                         // Sample strobe DIO
-    int chanRange[MAX1270_NUMCHAN];    // Channel Ranges
-    int chanPolarity[MAX1270_NUMCHAN]; // Channel Polarity
-    int mode;                          // Clock selection 
-    int getChanMask(int chan);         
-    int getCtlByte(int chan);
-public:
-    MAX1270(int csPin, int sstrbPin);
-    void setBipolar();
-    void setBipolar(int chan);
-    void setUnipolar();
-    void setUnipolar(int chan);
-    void setRange5V();
-    void setRange5V(int chan);
-    void setRange10V();
-    void setRange10V(int chan);
-    void setInternalClock();
-    void setExternalClock();
-    int  sample(int chan);
-    void sampleAll(int value[]);
-    float sampleVolts(int chan);
-    void sampleAllVolts(float value[]);
-    int numChan();
+ private:
+  int cs;                            // Chip select DIO
+  int sstrb;                         // Sample strobe DIO
+  int chanRange[MAX1270_NUMCHAN];    // Channel Ranges
+  int chanPolarity[MAX1270_NUMCHAN]; // Channel Polarity
+  int mode;                          // Clock selection
+  int getChanMask(int chan);
+  int getCtlByte(int chan);
+ public:
+  MAX1270(int csPin, int sstrbPin);
+  void setBipolar();
+  void setBipolar(int chan);
+  void setUnipolar();
+  void setUnipolar(int chan);
+  void setRange5V();
+  void setRange5V(int chan);
+  void setRange10V();
+  void setRange10V(int chan);
+  void setInternalClock();
+  void setExternalClock();
+  int  sample(int chan);
+  void sampleAll(int value[]);
+  float sampleVolts(int chan);
+  void sampleAllVolts(float value[]);
+  int numChan();
 };
 
 #endif
