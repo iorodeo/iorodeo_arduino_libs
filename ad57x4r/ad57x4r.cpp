@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// ad57x4r.h
+// ad57x4r.cpp
 //
 // Provides an SPI based interface to the AD57X4R
 // Complete, Quad, 12-/14-/16-Bit, Serial Input,
@@ -48,11 +48,20 @@
 // Constructor
 // ----------------------------------------------------------------------------
 AD57X4R::AD57X4R(int csPin) {
-  cs = csPin;
-  csInvertFlag = false;
-  pinMode(cs,OUTPUT);
-  digitalWrite(cs,HIGH);
+  setupCS(csPin);
   output.header = 0;
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::setupCS
+//
+// Set chip select pin for SPI Bus, and start high (disabled)
+// ----------------------------------------------------------------------------
+void AD57X4R::setupCS(int csPin) {
+  csInvertFlag = false;
+  ::pinMode(csPin,OUTPUT);
+  ::digitalWrite(csPin,HIGH);
+  this->csPin = csPin;
 }
 
 // ----------------------------------------------------------------------------
@@ -77,7 +86,8 @@ void AD57X4R::setHeader(byte value, byte bit_shift, byte bit_count) {
 //
 // Set header read/write bit to value
 // ----------------------------------------------------------------------------
-void AD57X4R::setReadWrite(byte value) {
+void AD57X4R::setReadWrite(byte value)
+{
   setHeader(value,READ_WRITE_BIT_SHIFT,READ_WRITE_BIT_COUNT);
 }
 
@@ -97,7 +107,7 @@ void AD57X4R::setRegisterSelect(byte value) {
 // ----------------------------------------------------------------------------
 void AD57X4R::setDACAddress(channels channel) {
   byte value;
-  if (channel == A) {
+  if (channel == A){
     value = DAC_ADDRESS_A;
   } else if (channel == B) {
     value = DAC_ADDRESS_B;
@@ -128,8 +138,7 @@ void AD57X4R::setNOP() {
 void AD57X4R::csEnable() {
   if (csInvertFlag == false) {
     digitalWrite(cs,LOW);
-  }
-  else {
+  } else {
     digitalWrite(cs,HIGH);
   }
 }
@@ -142,8 +151,7 @@ void AD57X4R::csEnable() {
 void AD57X4R::csDisable() {
   if (csInvertFlag == false) {
     digitalWrite(cs,HIGH);
-  }
-  else {
+  } else {
     digitalWrite(cs,LOW);
   }
 }
@@ -233,11 +241,11 @@ int AD57X4R::readInput() {
 // Sets output shift register data to value
 // ----------------------------------------------------------------------------
 void AD57X4R::setData(unsigned int value) {
-  if (res == AD5754R) {
+  if (resolution == AD5754R) {
     output.data.unipolar = value;
-  } else if (res == AD5734R) {
+  } else if (resolution == AD5734R) {
     output.data.unipolar = value << 2;
-  } else if (res == AD5724R) {
+  } else if (resolution == AD5724R) {
     output.data.unipolar = value << 4;
   }
 }
@@ -364,7 +372,7 @@ void AD57X4R::init(resolutions resolution, output_ranges output_range) {
 // Initialize resolution, output range, and power control
 // ----------------------------------------------------------------------------
 void AD57X4R::init(resolutions resolution, output_ranges output_range, channels channel) {
-  res = resolution;
+  this->resolution = resolution;
   setOutputRange(output_range, channel);
   setPowerControlRegister(channel);
 }

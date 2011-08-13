@@ -25,8 +25,8 @@ class AD57X4R {
   void setCSInvert();
   void setCSNormal();
  private:
-  int cs;
-  int res;
+  int resolution;
+  int csPin;
   struct shift_register {
     byte header;
     union {
@@ -37,6 +37,7 @@ class AD57X4R {
   struct shift_register input;
   bool unipolar;
   bool csInvertFlag;
+  void setupCS(int csPin);
   void setHeader(byte value, byte bit_shift, byte bit_count);
   void setReadWrite(byte value);
   void setRegisterSelect(byte value);
