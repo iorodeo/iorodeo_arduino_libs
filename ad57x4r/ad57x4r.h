@@ -20,8 +20,8 @@ class AD57X4R {
   void init(resolutions resolution, output_ranges output_range);
   void init(resolutions resolution, output_ranges output_range, channels channel);
   int readPowerControlRegister();
-  void update(unsigned int value, channels channel);
-  void update(int value, channels channel);
+  void analogWrite(channels channel, unsigned int value);
+  void analogWrite(channels channel, int value);
   void setCSInvert();
   void setCSNormal();
  private:

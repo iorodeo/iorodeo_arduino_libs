@@ -137,9 +137,9 @@ void AD57X4R::setNOP() {
 // ----------------------------------------------------------------------------
 void AD57X4R::csEnable() {
   if (csInvertFlag == false) {
-    digitalWrite(cs,LOW);
+    digitalWrite(csPin,LOW);
   } else {
-    digitalWrite(cs,HIGH);
+    digitalWrite(csPin,HIGH);
   }
 }
 
@@ -150,9 +150,9 @@ void AD57X4R::csEnable() {
 // ----------------------------------------------------------------------------
 void AD57X4R::csDisable() {
   if (csInvertFlag == false) {
-    digitalWrite(cs,HIGH);
+    digitalWrite(csPin,HIGH);
   } else {
-    digitalWrite(cs,LOW);
+    digitalWrite(csPin,LOW);
   }
 }
 
@@ -325,11 +325,11 @@ int AD57X4R::readPowerControlRegister() {
 }
 
 // ---------------------------------------------------------------------------
-// AD57X4R::update
+// AD57X4R::analogWrite
 //
 // Sets the DAC channel to value
 // ---------------------------------------------------------------------------
-void AD57X4R::update(unsigned int value, channels channel) {
+void AD57X4R::analogWrite(channels channel, unsigned int value) {
   if (unipolar) {
     setReadWrite(WRITE);
     setRegisterSelect(REGISTER_SELECT_DAC);
@@ -340,11 +340,11 @@ void AD57X4R::update(unsigned int value, channels channel) {
 }
 
 // ---------------------------------------------------------------------------
-// AD57X4R::update
+// AD57X4R::analogWrite
 //
 // Sets the DAC channel to value
 // ---------------------------------------------------------------------------
-void AD57X4R::update(int value, channels channel) {
+void AD57X4R::analogWrite(channels channel, int value) {
 }
 
 // ----------------------------------------------------------------------------

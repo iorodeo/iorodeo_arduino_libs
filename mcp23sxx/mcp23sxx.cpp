@@ -17,24 +17,30 @@
 // Author: Peter Polidoro, IO Rodeo Inc.
 // ----------------------------------------------------------------------------
 #include "WProgram.h"
-#include <Spi.h>
+#include <SPI.h>
 #include "mcp23sxx.h"
+#include <Streaming.h>
 
 //---------- constructor ----------------------------------------------------
 
-MCP23SXX::MCP23SXX(resolutions resolution, int csPin) {
-  this->resolution = resolution;
+MCP23SXX::MCP23SXX(int csPin) {
   setupCS(csPin);
-  setupDevice(0b000);
+  pinCountMax = MCP23S17_PIN_COUNT;
 }
 
-MCP23SXX::MCP23SXX(resolutions resolution, int csPin, byte aaa_hw_addr) {
-  // Set the aaa hardware address for this chip by tying the
-  // MCP23SXX's pins (A0, A1, and A2) to either 5v or GND.
-  this->resolution = resolution;
-  setupCS(csPin);
-  setupDevice(aaa_hw_addr);
-}
+// MCP23SXX::MCP23SXX(resolutions resolution, int csPin) {
+//   this->resolution = resolution;
+//   setupCS(csPin);
+//   setupDevice(0b0000);
+// }
+
+// MCP23SXX::MCP23SXX(resolutions resolution, int csPin, byte aaa_hw_addr) {
+//   // Set the aaa hardware address for this chip by tying the
+//   // MCP23SXX's pins (A0, A1, and A2) to either 5v or GND.
+//   this->resolution = resolution;
+//   setupCS(csPin);
+//   setupDevice(aaa_hw_addr);
+// }
 
 //------------------ private -----------------------------------------------
 
@@ -50,63 +56,97 @@ void MCP23SXX::setupCS(int csPin) {
   this->csPin = csPin;
 }
 
+// ----------------------------------------------------------------------------
+// MCP23SXX::init
+//
+// Initialize resolution
+// ----------------------------------------------------------------------------
+void MCP23SXX::init(resolutions resolution) {
+  this->resolution = resolution;
+  setupDevice(0b0000);
+}
+
 void MCP23SXX::setupDevice(byte aaa_hw_addr) {
+  if (resolution == MCP23S08) {
+    pinCount = MCP23S08_PIN_COUNT;
+  } else if (resolution == MCP23S17) {
+    pinCount = MCP23S17_PIN_COUNT;
+  }
+  for (int pin=0; pin<pinCount; pin++) {
+    if (INPUT) {
+      this->mode = this->mode | INPUT<<pin;
+    } else {
+      this->mode = this->mode & INPUT<<pin;
+    }
+  }
+
   this->aaa_hw_addr = aaa_hw_addr;
-  this->read_cmd  = 0b01000000 | aaa_hw_addr<<1 | 1<<0; // MCP23SXX_READ  = B0100AAA1
-  this->write_cmd = 0b01000000 | aaa_hw_addr<<1 | 0<<0; // MCP23SXX_WRITE = B0100AAA0
+  this->read_cmd  = 0b01000000 | aaa_hw_addr<<1 | 1<<0; // MCP23SXX_READ  = 0b0100AAA1
+  this->write_cmd = 0b01000000 | aaa_hw_addr<<1 | 0<<0; // MCP23SXX_WRITE = 0b0100AAA0
 
   // If MCP23S17, set BANK=1 so addresses will be the same as MCP23S08
   if (resolution == MCP23S17) {
     setData(IOCONA, BANK);
   }
 
+  byte ioconValue;
+  ioconValue = getData(IOCON);
+  Serial << "ioconValue = " << _BIN(ioconValue) << endl;
+
   // Enable MIRROR, SEQOP, HAEN
-  setData(IOCON, (getData(IOCON) | MIRROR | SEQOP | HAEN));
+  // setData(IOCON, (getData(IOCON) | MIRROR | SEQOP | HAEN));
+
+  // Enable SEQOP
+  setData(IOCON, SEQOP);
+
+  ioconValue = getData(IOCON);
+  Serial << "ioconValue = " << _BIN(ioconValue) << endl;
 }
 
 byte MCP23SXX::getData(byte addr) {
   byte data;
+  byte dummyData=0;
   ::digitalWrite(csPin, LOW);
-  Spi.transfer(read_cmd);
-  Spi.transfer(addr);
-  data = Spi.transfer(0x0/*dummy data for read*/);
+  SPI.transfer(read_cmd);
+  SPI.transfer(addr);
+  data = SPI.transfer(dummyData);
   ::digitalWrite(csPin, HIGH);
   return data;
 }
 
-word MCP23SXX::getData(byte addr) {
-  byte low_byte;
-  byte high_byte;
-  ::digitalWrite(csPin, LOW);
-  Spi.transfer(read_cmd);
-  Spi.transfer(addr);
-  low_byte  = Spi.transfer(0x0/*dummy data for read*/);
-  high_byte = Spi.transfer(0x0/*dummy data for read*/);
-  ::digitalWrite(csPin, HIGH);
-  return word(high_byte,low_byte);
-}
+// word MCP23SXX::getData(byte addr) {
+//   byte low_byte;
+//   byte high_byte;
+//   ::digitalWrite(csPin, LOW);
+//   SPI.transfer(read_cmd);
+//   SPI.transfer(addr);
+//   low_byte  = SPI.transfer(dummyData);
+//   high_byte = SPI.transfer(dummyData);
+//   ::digitalWrite(csPin, HIGH);
+//   return word(high_byte,low_byte);
+// }
 
 void MCP23SXX::setData(byte addr, byte data) {
   ::digitalWrite(csPin, LOW);
-  Spi.transfer(write_cmd);
-  Spi.transfer(addr);
-  Spi.transfer(data);
+  SPI.transfer(write_cmd);
+  SPI.transfer(addr);
+  SPI.transfer(data);
   ::digitalWrite(csPin, HIGH);
 }
 
-void MCP23SXX::setData(byte addr, word data) {
-  ::digitalWrite(csPin, LOW);
-  Spi.transfer(write_cmd);
-  Spi.transfer(addr);
-  Spi.transfer(lowByte(data));
-  Spi.transfer(highByte(data));
-  Spi.transfer(data);
-  ::digitalWrite(csPin, HIGH);
-}
+// void MCP23SXX::setData(byte addr, word data) {
+//   ::digitalWrite(csPin, LOW);
+//   SPI.transfer(write_cmd);
+//   SPI.transfer(addr);
+//   SPI.transfer(lowByte(data));
+//   SPI.transfer(highByte(data));
+//   SPI.transfer(data);
+//   ::digitalWrite(csPin, HIGH);
+// }
 
 //---------- public ----------------------------------------------------
 
-void MCP23SXX::pinMode(bool mode) {
+void MCP23SXX::pinMode(int mode) {
   byte input_pins;
   if(mode == OUTPUT) {
     input_pins = 0x00;
@@ -120,20 +160,21 @@ void MCP23SXX::pinMode(bool mode) {
   } else if (resolution == MCP23S08) {
     setData(IODIR, input_pins);
   }
-  this->mode = mode;
+  for (int pin=0; pin<pinCount; pin++) {
+    if (mode) {
+      this->mode = this->mode | mode<<pin;
+    } else {
+      this->mode = this->mode & mode<<pin;
+    }
+  }
 }
 
-void MCP23SXX::port(bool value) {
-  if (mode == INPUT) {
-    byte GPPU_;
-    if (resolution == MCP23S08) {
-      GPPU_ = GPPU;
-    } else if (pin < 8) {
-      GPPU_ = GPPUA;
-    } else {
-      GPPU_ = GPPUB;
-    }
+int MCP23SXX::pinMode() {
+  return mode;
+}
 
+void MCP23SXX::port(word value) {
+  if (mode == INPUT) {
     if (value == HIGH) {
       if (resolution == MCP23S08) {
         setData(GPPU, 0xFF);
@@ -149,22 +190,12 @@ void MCP23SXX::port(bool value) {
         setData(GPPUB, 0x00);
       }
     }
-  }
-}
-
-void MCP23SXX::port(byte value) {
-  if (resolution == MCP23S17) {
-    setData(GPIO,(word)value);
-  } else {
-    setData(GPIO,value);
-  }
-}
-
-void MCP23SXX::port(word value) {
-  if (resolution == MCP23S08) {
-    setData(GPIO,(byte)value);
-  } else {
-    setData(GPIO,value);
+  } else if (mode == OUTPUT) {
+    if (resolution == MCP23S08) {
+      setData(GPIO,(byte)value);
+    } else if (resolution == MCP23S17) {
+      setData(GPIO,(word)value);
+    }
   }
 }
 
@@ -172,11 +203,11 @@ byte MCP23SXX::port() {
   return getData(GPIO);
 }
 
-word MCP23SXX::port() {
-  return getData(GPIO);
-}
+// word MCP23SXX::port() {
+//   return getData(GPIO);
+// }
 
-void MCP23SXX::pinMode(int pin, bool mode) {
+void MCP23SXX::pinMode(int pin, int mode) {
   byte IODIR_;
   if (resolution == MCP23S08) {
     IODIR_ = IODIR;
@@ -191,7 +222,11 @@ void MCP23SXX::pinMode(int pin, bool mode) {
   } else {
     setData(IODIR_, getData(IODIR_) & ~(1<<pin) );
   }
-  this->mode = mode;
+  if (mode) {
+    this->mode = this->mode | mode<<pin;
+  } else {
+    this->mode = this->mode & mode<<pin;
+  }
 }
 
 void MCP23SXX::digitalWrite(int pin, bool value) {
@@ -231,6 +266,7 @@ void MCP23SXX::digitalWrite(int pin, bool value) {
 int MCP23SXX::digitalRead(int pin) {
   byte GPIO_;
   byte offset=0;
+  int pinValue;
   if (resolution == MCP23S08) {
     GPIO_ = GPIO;
   } else if (pin < 8) {
@@ -239,7 +275,14 @@ int MCP23SXX::digitalRead(int pin) {
     GPIO_ = GPIOB;
     offset = 8;
   }
-  (int)(getData(GPIO_) & 1<<(pin-offset));
+  pinValue = (int)(getData(GPIO_) & 1<<(pin-offset));
+
+  // TODO: make depend on polarity setting
+  if (pinValue) {
+    return HIGH;
+  } else {
+    return LOW;
+  }
 }
 
 

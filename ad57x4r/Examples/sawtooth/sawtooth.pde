@@ -15,9 +15,10 @@ int powerControlRegister;
 unsigned int value = value_min;
 
 void setup() {
-
-  // Setup serial and SPI communications
+  // Setup serial communications
   Serial.begin(115200);
+
+  // Setup SPI communications
   SPI.setDataMode(SPI_MODE2);
   SPI.setBitOrder(MSBFIRST);
   SPI.setClockDivider(SPI_CLOCK_DIV8);
@@ -39,6 +40,6 @@ void loop() {
   } else {
     value = value_min;
   }
-  dac.update(value,AD57X4R::ALL);
+  dac.analogWrite(AD57X4R::ALL,value);
   delay(LOOP_DELAY);
 }
