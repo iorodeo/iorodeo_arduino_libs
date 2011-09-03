@@ -285,5 +285,110 @@ int MCP23SXX::digitalRead(int pin) {
   }
 }
 
+// ----------------------------------------------------------------------------
+// MCP23SXX::enableInterrupt
+//
+// Enable GPIO input pin for interrupt-on-change event.
+// Compare to previous value.
+// ----------------------------------------------------------------------------
+void MCP23SXX::enableInterrupt(int pin) {
+  byte INTCON_;
+  byte GPINTEN_;
+  byte offset=0;
+  if (resolution == MCP23S08) {
+    INTCON_ = INTCON;
+    GPINTEN_ = GPINTEN;
+  } else if (pin < 8) {
+    INTCON_ = INTCONA;
+    GPINTEN_ = GPINTENA;
+  } else {
+    INTCON_ = INTCONB;
+    GPINTEN_ = GPINTENB;
+    offset = 8;
+  }
+  setData(INTCON_, getData(INTCON_) & ~(1<<(pin-offset)) );
+  setData(GPINTEN_, getData(GPINTEN_) | (1<<(pin-offset)) );
+}
 
+// ----------------------------------------------------------------------------
+// MCP23SXX::enableInterrupt
+//
+// Enable GPIO input pin for interrupt-on-change event.
+// Compare to default value.
+// ----------------------------------------------------------------------------
+void MCP23SXX::enableInterrupt(int pin, bool defaultValue) {
+  byte DEFVAL_;
+  byte INTCON_;
+  byte GPINTEN_;
+  byte offset=0;
+  if (resolution == MCP23S08) {
+    DEFVAL_ = DEFVAL;
+    INTCON_ = INTCON;
+    GPINTEN_ = GPINTEN;
+  } else if (pin < 8) {
+    DEFVAL_ = DEFVALA;
+    INTCON_ = INTCONA;
+    GPINTEN_ = GPINTENA;
+  } else {
+    DEFVAL_ = DEFVALB;
+    INTCON_ = INTCONB;
+    GPINTEN_ = GPINTENB;
+    offset = 8;
+  }
+  if (defaultValue) {
+    setData(DEFVAL_, getData(DEFVAL_) | (1<<(pin-offset)) );
+  } else {
+    setData(DEFVAL_, getData(DEFVAL_) & ~(1<<(pin-offset)) );
+  }
+  setData(INTCON_, getData(INTCON_) | (1<<(pin-offset)) );
+  setData(GPINTEN_, getData(GPINTEN_) | (1<<(pin-offset)) );
+}
 
+// ----------------------------------------------------------------------------
+// MCP23SXX::disableInterrupt
+//
+// Disable GPIO input pin for interrupt-on-change event.
+// ----------------------------------------------------------------------------
+void MCP23SXX::disableInterrupt(int pin) {
+  byte GPINTEN_;
+  byte offset=0;
+  if (resolution == MCP23S08) {
+    GPINTEN_ = GPINTEN;
+  } else if (pin < 8) {
+    GPINTEN_ = GPINTENA;
+  } else {
+    GPINTEN_ = GPINTENB;
+    offset = 8;
+  }
+  setData(GPINTEN_, getData(GPINTEN_) & ~(1<<(pin-offset)) );
+}
+
+// ----------------------------------------------------------------------------
+// MCP23SXX::getInterruptFlagRegister
+//
+// Returns the contents of the interrupt flag register.
+// ----------------------------------------------------------------------------
+int MCP23SXX::getInterruptFlagRegister() {
+  int flagRegisterValues;
+  if (resolution == MCP23S08) {
+    flagRegisterValues = (int)(getData(INTF));
+  } else {
+    flagRegisterValues = (int)(getData(INTFA)) | (int)(getData(INTFB))<<8;
+  }
+  return flagRegisterValues;
+}
+
+// ----------------------------------------------------------------------------
+// MCP23SXX::getInterruptCaptureRegister
+//
+// Returns the contents of the interrupt capture register.
+// ----------------------------------------------------------------------------
+int MCP23SXX::getInterruptCaptureRegister() {
+  int captureRegisterValues;
+  if (resolution == MCP23S08) {
+    captureRegisterValues = (int)(getData(INTCAP));
+  } else {
+    captureRegisterValues = (int)(getData(INTCAPA)) | (int)(getData(INTCAPB))<<8;
+  }
+  return captureRegisterValues;
+}
