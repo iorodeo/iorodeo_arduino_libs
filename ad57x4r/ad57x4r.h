@@ -15,6 +15,7 @@ class AD57X4R {
   enum resolutions {AD5724R, AD5734R, AD5754R};
   enum output_ranges {UNIPOLAR_5V, UNIPOLAR_10V, BIPOLAR_5V, BIPOLAR_10V};
   enum channels {A, B, C, D, ALL};
+  AD57X4R();
   AD57X4R(int csPin);
   void init();
   void init(resolutions resolution, output_ranges output_range);
@@ -22,6 +23,8 @@ class AD57X4R {
   int readPowerControlRegister();
   void analogWrite(channels channel, unsigned int value);
   void analogWrite(channels channel, int value);
+  void analogWrite(int pin, unsigned int value);
+  void analogWrite(int pin, int value);
   void setCSInvert();
   void setCSNormal();
  private:

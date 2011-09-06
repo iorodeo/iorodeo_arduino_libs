@@ -13,6 +13,7 @@
 class MCP23SXX {
  public:
   enum resolutions {MCP23S08, MCP23S17};
+  MCP23SXX();
   // You must specify the clock select pin
   MCP23SXX(int csPin);
   // You must specify the resolution and the clock select pin
@@ -120,6 +121,8 @@ class MCP23SXX {
   /* word getData(byte addr); */
   void setData(byte addr, byte data);
   /* void setData(byte addr, word data); */
+
+  bool initialized;
 };
 
 #endif // Mcp23sxx_h

@@ -47,6 +47,14 @@
 //
 // Constructor
 // ----------------------------------------------------------------------------
+AD57X4R::AD57X4R() {
+}
+
+// ----------------------------------------------------------------------------
+// AD57X4R::AD57X4R
+//
+// Constructor
+// ----------------------------------------------------------------------------
 AD57X4R::AD57X4R(int csPin) {
   setupCS(csPin);
   output.header = 0;
@@ -188,9 +196,9 @@ void AD57X4R::sendOutput() {
   returnByte = SPI.transfer(outByteHeader);
   returnByte = SPI.transfer(outByteDataHigh);
   returnByte = SPI.transfer(outByteDataLow);
-  Serial << "outByteHeader = " << _BIN(outByteHeader) << endl;
-  Serial << "outByteDataHigh = " << _BIN(outByteDataHigh) << endl;
-  Serial << "outByteDataLow = " << _BIN(outByteDataLow) << endl;
+  // Serial << "outByteHeader = " << _BIN(outByteHeader) << endl;
+  // Serial << "outByteDataHigh = " << _BIN(outByteDataHigh) << endl;
+  // Serial << "outByteDataLow = " << _BIN(outByteDataLow) << endl;
 
   // Disable SPI communication
   csDisable();
@@ -223,9 +231,9 @@ int AD57X4R::readInput() {
   inByteHeader = SPI.transfer(outByteHeader);
   inByteDataHigh = SPI.transfer(outByteDataHigh);
   inByteDataLow = SPI.transfer(outByteDataLow);
-  Serial << "inByteHeader = " << _BIN(inByteHeader) << endl;
-  Serial << "inByteDataHigh = " << _BIN(inByteDataHigh) << endl;
-  Serial << "inByteDataLow = " << _BIN(inByteDataLow) << endl;
+  // Serial << "inByteHeader = " << _BIN(inByteHeader) << endl;
+  // Serial << "inByteDataHigh = " << _BIN(inByteDataHigh) << endl;
+  // Serial << "inByteDataLow = " << _BIN(inByteDataLow) << endl;
 
   // Disable SPI communication
   csDisable();
@@ -345,6 +353,40 @@ void AD57X4R::analogWrite(channels channel, unsigned int value) {
 // Sets the DAC channel to value
 // ---------------------------------------------------------------------------
 void AD57X4R::analogWrite(channels channel, int value) {
+}
+
+// ---------------------------------------------------------------------------
+// AD57X4R::analogWrite
+//
+// Sets the DAC channel to value
+// ---------------------------------------------------------------------------
+void AD57X4R::analogWrite(int pin, unsigned int value) {
+  channels channel;
+  // Unnecessary and way too much code, but very explicit
+  switch (pin) {
+  case 0 : channel = A; break;
+  case 1 : channel = B; break;
+  case 2 : channel = C; break;
+  case 3 : channel = D; break;
+  }
+  analogWrite(channel, value);
+}
+
+// ---------------------------------------------------------------------------
+// AD57X4R::analogWrite
+//
+// Sets the DAC channel to value
+// ---------------------------------------------------------------------------
+void AD57X4R::analogWrite(int pin, int value) {
+  channels channel;
+  // Unnecessary and way too much code, but very explicit
+  switch (pin) {
+  case 0 : channel = A; break;
+  case 1 : channel = B; break;
+  case 2 : channel = C; break;
+  case 3 : channel = D; break;
+  }
+  analogWrite(channel, value);
 }
 
 // ----------------------------------------------------------------------------

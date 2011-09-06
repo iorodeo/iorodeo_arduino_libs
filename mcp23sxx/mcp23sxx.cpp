@@ -23,7 +23,12 @@
 
 //---------- constructor ----------------------------------------------------
 
+MCP23SXX::MCP23SXX() {
+  initialized = false;
+}
+
 MCP23SXX::MCP23SXX(int csPin) {
+  initialized = false;
   setupCS(csPin);
   pinCountMax = MCP23S17_PIN_COUNT;
 }
@@ -62,6 +67,7 @@ void MCP23SXX::setupCS(int csPin) {
 // Initialize resolution
 // ----------------------------------------------------------------------------
 void MCP23SXX::init(resolutions resolution) {
+  initialized = true;
   this->resolution = resolution;
   setupDevice(0b0000);
 }
@@ -91,7 +97,7 @@ void MCP23SXX::setupDevice(byte aaa_hw_addr) {
 
   byte ioconValue;
   ioconValue = getData(IOCON);
-  Serial << "ioconValue = " << _BIN(ioconValue) << endl;
+  // Serial << "ioconValue = " << _BIN(ioconValue) << endl;
 
   // Enable MIRROR, SEQOP, HAEN
   // setData(IOCON, (getData(IOCON) | MIRROR | SEQOP | HAEN));
@@ -100,7 +106,7 @@ void MCP23SXX::setupDevice(byte aaa_hw_addr) {
   setData(IOCON, SEQOP);
 
   ioconValue = getData(IOCON);
-  Serial << "ioconValue = " << _BIN(ioconValue) << endl;
+  // Serial << "ioconValue = " << _BIN(ioconValue) << endl;
 }
 
 byte MCP23SXX::getData(byte addr) {
@@ -264,6 +270,8 @@ void MCP23SXX::digitalWrite(int pin, bool value) {
 }
 
 int MCP23SXX::digitalRead(int pin) {
+  // Serial << "External IO digitalRead from pin " << pin << endl;
+  // Serial << "initialized  = " << initialized << endl;
   byte GPIO_;
   byte offset=0;
   int pinValue;
@@ -308,6 +316,9 @@ void MCP23SXX::enableInterrupt(int pin) {
   }
   setData(INTCON_, getData(INTCON_) & ~(1<<(pin-offset)) );
   setData(GPINTEN_, getData(GPINTEN_) | (1<<(pin-offset)) );
+
+  // Perform dummy read to make sure interrupts are cleared
+  byte portData = port();
 }
 
 // ----------------------------------------------------------------------------
