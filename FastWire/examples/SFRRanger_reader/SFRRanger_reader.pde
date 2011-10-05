@@ -10,7 +10,7 @@
 // This example code is in the public domain.
 
 
-#include <Wire.h>
+#include <FastWire.h>
 
 void setup()
 {
