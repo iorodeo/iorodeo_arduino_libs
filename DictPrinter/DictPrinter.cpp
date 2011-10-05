@@ -12,7 +12,7 @@ void DictPrinter::start() {
 }
 
 void DictPrinter::stop() {
-    Serial << "}\n";
+    Serial << "}" << endl;
     numberOfItems = 0;
 }
 
@@ -44,5 +44,21 @@ void DictPrinter::addFltItem(char *key, float value) {
 
 int DictPrinter::len() {
     return numberOfItems;
+}
+
+void DictPrinter::addLongTuple(char *key, uint8_t num, ...) {
+    va_list args; 
+    long value;
+
+    Serial << "'" << key << "'" << ":" << "(";
+    va_start(args,num);
+    for (uint8_t i=0; i<num; i++) {
+        value = va_arg(args,long);
+        Serial << _DEC(value);
+        if (i < num-1) {
+            Serial << ",";
+        }
+    }
+    Serial << "),";
 }
 
