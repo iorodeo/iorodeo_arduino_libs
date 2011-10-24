@@ -1,6 +1,6 @@
 ### Mcp23s17
 
-A C++ object to control the Microchip MCP23S17 16-bit IO Expander. For the Arduino Platform.
+A C++ object to control the Microchip MCP23xx 8/16-bit IO Expander. For the Arduino Platform. Modified version of the library by Dreamcat4 https://github.com/dreamcat4/Mcp23s17. 
 
 ### Introduction
 
