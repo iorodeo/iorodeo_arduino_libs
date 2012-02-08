@@ -6,7 +6,11 @@
 //
 // Author: Will Dickson, IO Rodeo Inc.
 // ----------------------------------------------------------------------------
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 #include "SPI.h"
 #include "mcp4261.h"
 
@@ -34,8 +38,6 @@
 MCP4261::MCP4261(int csPin) {
   cs = csPin;
   csInvertFlag = false;
-  pinMode(cs,OUTPUT);
-  digitalWrite(cs,HIGH);
 }
 
 
@@ -294,6 +296,10 @@ void MCP4261::decrWiper1() {
 void MCP4261::initialize() {
   uint8_t byte0;
   uint8_t byte1;
+
+  pinMode(cs,OUTPUT);
+  digitalWrite(cs,HIGH);
+
   // Enable SPI communication
   digitalWrite(cs,LOW);
   // Send command
