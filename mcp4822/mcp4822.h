@@ -22,6 +22,7 @@ private:
 public:
     MCP4822();
     MCP4822(int csPin, int ldacPin);
+    void begin();
     void setValue(int dac, int value);
     void setValue_A(int value);
     void setValue_B(int value);

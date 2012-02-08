@@ -9,6 +9,7 @@ MCP4822 analogOut = MCP4822(AOUT_CS,AOUT_LDAC);
 void setup() {
     // Setup serial and SPI communications
     Serial.begin(115200);
+    analogOut.begin();
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockDivider(SPI_CLOCK_DIV8);

@@ -6,7 +6,11 @@
 //
 // Author: Will Dickson, IO Rodeo Inc.
 // ----------------------------------------------------------------------------
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 #include "SPI.h"
 #include "mcp4822.h"
 
@@ -29,6 +33,14 @@ MCP4822::MCP4822(int csPin, int ldacPin) {
     // Configure chip select and latch pins
     cs = csPin;
     ldac = ldacPin;
+}
+
+// ----------------------------------------------------------------------------
+// MCP4822::MCP4822
+//
+// initialization function
+// ----------------------------------------------------------------------------
+void MCP4822::begin() {
     pinMode(cs,OUTPUT);
     pinMode(ldac,OUTPUT);
     digitalWrite(cs,HIGH);
