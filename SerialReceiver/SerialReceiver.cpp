@@ -163,7 +163,7 @@ void SerialReceiver::handleStopChar(int serialByte) {
 
 void SerialReceiver::handleSepChar(int serialByte) {
     if (itemPos > 0) {
-        if (itemCnt == SR_MAX_ITEMS) {
+        if (itemCnt == SR_MAX_ITEMS-1) {
             resetState();
             error = SR_ERR_MESSAGE_LENGTH;
         }
