@@ -6,7 +6,11 @@
 //
 // Author: Will Dickson, IO Rodeo Inc.
 // ----------------------------------------------------------------------------
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 #include "SPI.h"
 #include "max1270.h"
 

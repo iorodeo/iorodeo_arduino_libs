@@ -1,7 +1,10 @@
 #ifndef _SERIAL_LCD_H_
 #define _SERIAL_LCD_H_
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
-
+#endif
 
 class SerialLCD {
     private:

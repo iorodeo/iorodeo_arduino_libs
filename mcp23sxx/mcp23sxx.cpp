@@ -16,7 +16,11 @@
 //
 // Author: Peter Polidoro, IO Rodeo Inc.
 // ----------------------------------------------------------------------------
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 #include <SPI.h>
 #include "mcp23sxx.h"
 #include <Streaming.h>

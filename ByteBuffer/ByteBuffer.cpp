@@ -5,9 +5,12 @@
  */
  
 #include <util/atomic.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 #include "ByteBuffer.h"
-
 
 ByteBuffer::ByteBuffer(){
 

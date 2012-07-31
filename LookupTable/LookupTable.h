@@ -1,6 +1,10 @@
 #ifndef LOOKUP_TABLE_H
 #define LOOKUP_TABLE_H
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
 #include "WProgram.h"
+#endif
 
 class LookupTable {
     public:
