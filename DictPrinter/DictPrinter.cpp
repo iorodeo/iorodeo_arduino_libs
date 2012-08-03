@@ -21,40 +21,39 @@ void DictPrinter::stop() {
 }
 
 void DictPrinter::addIntItem(char *key, int value) {
-    Serial << "'" << key << "'" << ":" <<  _DEC(value) << ",";
-    numberOfItems++;
+    addKey(key);
+    Serial <<  _DEC(value);;
 }
 
 void DictPrinter::addLongItem(char *key, long value) {
-    Serial << "'" << key << "'" << ":" << _DEC(value) << ",";
+    addKey(key);
+    Serial << _DEC(value); 
 }
 
 void DictPrinter::addStrItem(char *key, char *value) {
-    Serial << "'" << key << "'" << ":" << "'" << value << "'" << ",";
-    numberOfItems++;
+    addKey(key);
+    Serial << "\"" << value << "\"";
 }
 
 void DictPrinter::addDblItem(char *key, double value) {
     char valueStr[DP_STR_LEN];
+    addKey(key);
     dtostre(value,valueStr,DP_DOUBLE_PREC,0);
-    Serial << "'" << key << "'" << ":" <<  valueStr << ",";
+    Serial <<  valueStr; 
 }
 
 void DictPrinter::addFltItem(char *key, float value) {
     char valueStr[DP_STR_LEN];
+    addKey(key);
     dtostre((double)value, valueStr, DP_DOUBLE_PREC,0);
-    Serial << "'" << key << "'" << ":" <<  valueStr << ",";
-}
-
-int DictPrinter::len() {
-    return numberOfItems;
+    Serial <<  valueStr; 
 }
 
 void DictPrinter::addLongTuple(char *key, uint8_t num, ...) {
     va_list args; 
     long value;
-
-    Serial << "'" << key << "'" << ":" << "(";
+    addKey(key);
+    Serial << "(";
     va_start(args,num);
     for (uint8_t i=0; i<num; i++) {
         value = va_arg(args,long);
@@ -63,6 +62,17 @@ void DictPrinter::addLongTuple(char *key, uint8_t num, ...) {
             Serial << ",";
         }
     }
-    Serial << "),";
+    Serial << ")";
 }
 
+int DictPrinter::len() {
+    return numberOfItems;
+}
+
+void DictPrinter::addKey(char *key) {
+    if (numberOfItems > 0) {
+        Serial << ",";
+    }
+    Serial << "\"" << key << "\"" << ":"; 
+    numberOfItems++;
+}

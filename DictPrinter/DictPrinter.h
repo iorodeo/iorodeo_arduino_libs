@@ -19,5 +19,6 @@ class DictPrinter {
         int len();
     private:
         int numberOfItems;
+        void addKey(char *key);
 };
 #endif
