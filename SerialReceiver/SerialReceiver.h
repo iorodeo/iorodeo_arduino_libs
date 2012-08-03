@@ -7,21 +7,21 @@
 #ifndef SerialReceiver_h
 #define SerialReceiver_h
 
-#define SR_MAX_ITEM_SZ 25
-#define SR_MAX_ITEMS   4
+enum {SR_MAX_ITEM_SZ = 25};
+enum {SR_MAX_ITEMS = 4};
 
-#define SR_DFLT_START_CHAR '['
-#define SR_DFLT_STOP_CHAR ']'
-#define SR_DFLT_SEP_CHAR  ',' 
+const char SR_DFLT_START_CHAR = '[';
+const char SR_DFLT_STOP_CHAR = ']';
+const char SR_DFLT_SEP_CHAR = ','; 
 
-#define SR_STATE_IDLE      0
-#define SR_STATE_RECEIVING 1
-#define SR_STATE_MESSAGE   2
+const int SR_STATE_IDLE = 0;
+const int SR_STATE_RECEIVING = 1;
+const int SR_STATE_MESSAGE = 2;
 
-#define SR_ERR_NONE 0
-#define SR_ERR_ILLEGAL_CHAR 1
-#define SR_ERR_ITEM_LENGTH 2
-#define SR_ERR_MESSAGE_LENGTH 3
+const int SR_ERR_NONE = 0;
+const int SR_ERR_ILLEGAL_CHAR = 1;
+const int SR_ERR_ITEM_LENGTH = 2;
+const int SR_ERR_MESSAGE_LENGTH = 3;
 
 class SerialReceiver {
 
