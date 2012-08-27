@@ -8,7 +8,7 @@
 #define SerialReceiver_h
 
 enum {SR_MAX_ITEM_SZ = 25};
-enum {SR_MAX_ITEMS = 4};
+enum {SR_MAX_ITEMS = 5};
 
 const char SR_DFLT_START_CHAR = '[';
 const char SR_DFLT_STOP_CHAR = ']';

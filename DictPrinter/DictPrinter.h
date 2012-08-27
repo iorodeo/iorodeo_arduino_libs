@@ -10,6 +10,8 @@ class DictPrinter {
         DictPrinter();
         void start();
         void stop();
+        void addEmptyItem(char *key);
+        void addCharItem(char *key, char value);
         void addStrItem(char *key, char *value);
         void addFltItem(char *key, float value);
         void addDblItem(char *key, double value);

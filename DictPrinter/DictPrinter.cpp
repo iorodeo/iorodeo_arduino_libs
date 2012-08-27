@@ -20,9 +20,19 @@ void DictPrinter::stop() {
     numberOfItems = 0;
 }
 
+void DictPrinter::addEmptyItem(char *key) {
+    addKey(key);
+    Serial << "\"" << "\"";
+}
+
+void DictPrinter::addCharItem(char *key, char value) {
+    addKey(key);
+    Serial << "\"" << value << "\"";
+}
+
 void DictPrinter::addIntItem(char *key, int value) {
     addKey(key);
-    Serial <<  _DEC(value);;
+    Serial <<  _DEC(value);
 }
 
 void DictPrinter::addLongItem(char *key, long value) {
