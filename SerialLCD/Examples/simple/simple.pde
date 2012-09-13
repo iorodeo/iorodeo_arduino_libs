@@ -1,9 +1,9 @@
-#include <NewSoftSerial.h>
+#include <SoftwareSerial.h>
 #include "SerialLCD.h"
 
 #define MSG_SIZE 20
 
-NewSoftSerial softSerial(7,6);
+SoftwareSerial softSerial(8,7);
 SerialLCD lcd(softSerial);
 
 void setup() {
