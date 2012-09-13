@@ -8,11 +8,15 @@
 
 class SerialLCD {
     private:
-        Print *_portPtr;
+        //Print *_portPtr;
+        Stream *_portPtr;
+
     public:
         SerialLCD();
-        SerialLCD(Print &port);
-        void setPort(Print &port);
+        //SerialLCD(Print &port);
+        SerialLCD(Stream &port);
+        //void setPort(Print &port);
+        void setPort(Stream &port);
         void clearScreen(void);
         void setBrightness(byte value);
         void print(char *data);
