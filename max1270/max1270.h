@@ -32,6 +32,7 @@ class MAX1270 {
   void setRange10V(int chan);
   void setInternalClock();
   void setExternalClock();
+  void initialize();
   int  sample(int chan);
   void sampleAll(int value[]);
   float sampleVolts(int chan);

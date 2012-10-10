@@ -40,6 +40,13 @@ MAX1270::MAX1270(int csPin, int sstrbPin) {
   // Initialize digital IO
   cs = csPin;
   sstrb = sstrbPin;
+}
+
+// ---------------------------------------------------------------------------
+// Public Methods
+// ----------------------------------------------------------------------------
+
+void MAX1270::initialize() {
   pinMode(cs,OUTPUT);
   pinMode(sstrb, INPUT);
   digitalWrite(cs,HIGH);
@@ -48,43 +55,6 @@ MAX1270::MAX1270(int csPin, int sstrbPin) {
   setRange10V();
   setInternalClock();
 }
-
-// ----------------------------------------------------------------------------
-// Private Methods
-//-----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-// MAX1270::getChanMask
-//
-// Returns control byte channel selection mask. Bits 4,5, and 6 of the control
-// byte select the analog input channel.
-// ----------------------------------------------------------------------------
-int MAX1270::getChanMask(int chan) {
-  int mask = 0;
-  if ((chan >= 0) && (chan < MAX1270_NUMCHAN)) {
-    mask = chan << 4;
-  }
-  return mask;
-}
-
-// ---------------------------------------------------------------------------
-// MAX1270::getCtlByte
-//
-// Returns the control byte for the given channel based on the current settings
-// such as range, polarity, clock selection.
-// ----------------------------------------------------------------------------
-int MAX1270::getCtlByte(int chan) {
-  int ctlByte = CTL_BYTE_INIT;
-  ctlByte |= getChanMask(chan);
-  ctlByte |= chanRange[chan];
-  ctlByte |= chanPolarity[chan];
-  ctlByte |= mode;
-  return ctlByte;
-}
-
-// ---------------------------------------------------------------------------
-// Public Methods
-// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 // MAX1270::sample
@@ -315,3 +285,37 @@ void MAX1270::setRange5V() {
 int MAX1270::numChan() {
   return MAX1270_NUMCHAN;
 }
+
+// ----------------------------------------------------------------------------
+// Private Methods
+//-----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+// MAX1270::getChanMask
+//
+// Returns control byte channel selection mask. Bits 4,5, and 6 of the control
+// byte select the analog input channel.
+// ----------------------------------------------------------------------------
+int MAX1270::getChanMask(int chan) {
+  int mask = 0;
+  if ((chan >= 0) && (chan < MAX1270_NUMCHAN)) {
+    mask = chan << 4;
+  }
+  return mask;
+}
+
+// ---------------------------------------------------------------------------
+// MAX1270::getCtlByte
+//
+// Returns the control byte for the given channel based on the current settings
+// such as range, polarity, clock selection.
+// ----------------------------------------------------------------------------
+int MAX1270::getCtlByte(int chan) {
+  int ctlByte = CTL_BYTE_INIT;
+  ctlByte |= getChanMask(chan);
+  ctlByte |= chanRange[chan];
+  ctlByte |= chanPolarity[chan];
+  ctlByte |= mode;
+  return ctlByte;
+}
+
