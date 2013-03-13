@@ -5,17 +5,13 @@
 #else
 #include "WProgram.h"
 #endif
+#include "SoftwareSerial.h"
 
 class SerialLCD {
-    private:
-        //Print *_portPtr;
-        Stream *_portPtr;
 
     public:
         SerialLCD();
-        //SerialLCD(Print &port);
         SerialLCD(Stream &port);
-        //void setPort(Print &port);
         void setPort(Stream &port);
         void clearScreen(void);
         void setBrightness(byte value);
@@ -32,6 +28,9 @@ class SerialLCD {
         void toggleAuxFont();
         void toggleRevMode(); 
         void toggleSplash();
+
+    private:
+        Stream *_portPtr;
 };
 
 #endif
