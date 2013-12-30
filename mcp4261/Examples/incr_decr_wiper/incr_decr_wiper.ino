@@ -1,12 +1,12 @@
 #include <SPI.h>
 #include "mcp4261.h"
 
-#define LOOP_DELAY 10
-#define DIGIPOT_CS A2
-#define TOP 200
-#define BOTTOM 10
-#define UP 0
-#define DOWN 1
+const int LOOP_DELAY = 100;
+const int DIGIPOT_CS = 5;
+const int TOP = 200;
+const int BOTTOM = 10;
+const int UP = 0;
+const int DOWN = 1;
 
 MCP4261 digiPot = MCP4261(DIGIPOT_CS);
 

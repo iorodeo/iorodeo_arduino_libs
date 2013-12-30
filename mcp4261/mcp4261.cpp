@@ -15,20 +15,20 @@
 #include "mcp4261.h"
 
 // Memory locations
-#define ADDR_VOLATILE_WIPER_0     0b0000
-#define ADDR_VOLATILE_WIPER_1     0b0001
-#define ADDR_NONVOLATILE_WIPER_0  0b0010
-#define ADDR_NONVOLATILE_WIPER_1  0b0011
-#define ADDR_TCON_REGISTER        0b0100
-#define ADDR_STATUS_REGISTER      0b0101
-#define ADDR_EEPROM_START         0b0110
-#define ADDR_EEPROM_END           0b1111
+const uint8_t ADDR_VOLATILE_WIPER_0     =  0b0000;
+const uint8_t ADDR_VOLATILE_WIPER_1     =  0b0001;
+const uint8_t ADDR_NONVOLATILE_WIPER_0  =  0b0010;
+const uint8_t ADDR_NONVOLATILE_WIPER_1  =  0b0011;
+const uint8_t ADDR_TCON_REGISTER        =  0b0100;
+const uint8_t ADDR_STATUS_REGISTER      =  0b0101;
+const uint8_t ADDR_EEPROM_START         =  0b0110;
+const uint8_t ADDR_EEPROM_END           =  0b1111;
 
-// Commands bits
-#define CMD_READ_DATA  0b11
-#define CMD_WRITE_DATA 0b00
-#define CMD_INCREMENT  0b01
-#define CMD_DECREMENT  0b10
+// Command bits
+const uint8_t CMD_READ_DATA   = 0b11;
+const uint8_t CMD_WRITE_DATA  = 0b00;
+const uint8_t CMD_INCREMENT   = 0b01;
+const uint8_t CMD_DECREMENT   = 0b10;
 
 // ----------------------------------------------------------------------------
 // MCP4261::MCP4261

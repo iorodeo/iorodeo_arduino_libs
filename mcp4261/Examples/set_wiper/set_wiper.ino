@@ -1,8 +1,8 @@
 #include <SPI.h>
 #include "mcp4261.h"
 
-#define LOOP_DELAY 10
-#define DIGIPOT_CS A2
+const int LOOP_DELAY = 50;
+const int DIGIPOT_CS = 5;
 
 MCP4261 digiPot = MCP4261(DIGIPOT_CS);
 
@@ -18,13 +18,12 @@ void setup() {
     digiPot.initialize();
 }
 
-
 void loop() {
-    static int cnt=10;
+    static int cnt=0;
     digiPot.setWiper0(cnt);
     cnt += 1;
     if (cnt > 246) {
-        cnt = 10;
+        cnt = 0;
     }
     delay(LOOP_DELAY);
 }
