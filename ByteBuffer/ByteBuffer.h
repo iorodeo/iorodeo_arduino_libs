@@ -7,8 +7,6 @@
 #ifndef ByteBuffer_h
 #define ByteBuffer_h
 
-#include "WProgram.h"
-
 class ByteBuffer
 {
 public:
